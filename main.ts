@@ -3,15 +3,6 @@ namespace SpriteKind {
     export const RadialPowerUp = SpriteKind.create()
     export const en = SpriteKind.create()
 }
-// --- 9. GLOBAL RESOLUTION INTERSECTION CODES ---
-// NEW: Collect Weapon Upgrade (Lasts for 5000 milliseconds)
-sprites.onOverlap(SpriteKind.Player, SpriteKind.RadialPowerUp, function (sprite, otherSprite) {
-    otherSprite.destroy()
-    hasRadialBurst = true
-    setTimeout(function () {
-        hasRadialBurst = false
-    }, 5000)
-})
 // Projectile hits either type of enemy
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (projectile, enemy) {
     projectile.destroy()
@@ -20,44 +11,7 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (projectile,
 })
 // --- 4. ATTACK TRIGGER (CONDITIONAL WEAPON SYSTEM) ---
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (hasRadialBurst) {
-        // --- POWER-UP ACTIVE: 8-WAY RADIAL SHOCKWAVE BURST ---
-        // Diagonal Down-Left
-        directions = [
-        { vx: 150, vy: 0 },
-        // Right
-            { vx: -150, vy: 0 },
-        // Left
-            { vx: 0, vy: -150 },
-        // Up
-            { vx: 0, vy: 150 },
-        // Down
-            { vx: 110, vy: -110 },
-        // Diagonal Up-Right
-            { vx: -110, vy: -110 },
-        // Diagonal Up-Left
-            { vx: 110, vy: 110 },
-        // Diagonal Down-Right
-            { vx: -110, vy: 110 }
-        ]
-        for (let dir of directions) {
-            shockwave = sprites.createProjectileFromSprite(img`
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . 9 9 . . . . . . . 
-                . . . . . . 9 9 9 9 . . . . . . 
-                . . . . . 9 9 1 1 9 9 . . . . . 
-                . . . . 9 9 1 1 1 1 9 9 . . . . 
-                . . . . 9 1 1 1 1 1 1 9 . . . . 
-                . . . . 9 1 1 1 1 1 1 9 . . . . 
-                . . . . 9 9 1 1 1 1 9 9 . . . . 
-                . . . . . 9 9 1 1 9 9 . . . . . 
-                . . . . . . 9 9 9 9 . . . . . . 
-                . . . . . . . 9 9 . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                `, playerShrimp, 50, 50)
-        }
-    } else {
+    for (let index = 0; index < 4; index++) {
         // --- BASE STATE: SNAPPY SINGLE DIRECTIONAL SHOCKWAVE ---
         shockwave = sprites.createProjectileFromSprite(img`
             . . . . . . . . . . . . . . . . 
@@ -110,11 +64,9 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (player2, enemy)
     info.changeLifeBy(-1)
 })
 let enemyJelly: Sprite = null
-let weaponUpgrade: Sprite = null
 let x: Sprite = null
 let shark: Sprite = null
 let shockwave: Sprite = null
-let directions: number[] = []
 let playerShrimp: Sprite = null
 // Core State Tracker: Controls whether you have the 8-way burst active
 let hasRadialBurst = false
@@ -188,24 +140,6 @@ game.onUpdateInterval(2001, function () {
         . . . . . b b b b b b . . . . . 
         `, SpriteKind.PowerUp)
     tiles.placeOnRandomTile(x, assets.tile`baseTransparency17`)
-})
-// --- 7. NEW: TEMPORARY WEAPON UPGRADE SPAWNER ---
-// Spawns a unique orange star item every 7 seconds
-game.onUpdateInterval(7000, function () {
-    weaponUpgrade = sprites.create(img`
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . 5 . . . . . . . . 
-        . . . . . . 5 5 5 . . . . . . . 
-        . . . . . 5 5 5 5 5 . . . . . . 
-        . . . 5 5 5 5 5 5 5 5 5 . . . . 
-        . . . . 5 5 5 5 5 5 5 . . . . . 
-        . . . . . 5 5 5 5 5 . . . . . . 
-        . . . . 5 5 5 5 5 5 5 . . . . . 
-        . . . 5 5 5 . . . 5 5 5 . . . . 
-        . . . 5 . . . . . . . 5 . . . . 
-        . . . . . . . . . . . . . . . . 
-        `, SpriteKind.RadialPowerUp)
-    tiles.placeOnRandomTile(weaponUpgrade, assets.tile`oceanSand6`)
 })
 // --- 8. AUTOMATED JELLY ENEMY SPAWNER ---
 game.onUpdateInterval(2000, function () {
